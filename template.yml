@@ -82,14 +82,14 @@ Resources:
           Properties:
             Path: /{id}
             Method: GET
-  # Each Lambda function is defined by properties:
-  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  # # Each Lambda function is defined by properties:
+  # # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: put-item.js
+  # # This is a Lambda function config associated with the source code: put-item.js
   putItemFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./
+      CodeUri: arn:aws:lambda:us-east-2:396229478243:function:caesar-task-putItemFunction-jxeu40KtN1hj
       Handler: src/handlers/put-item.putItemHandler
       Runtime: nodejs10.x
       MemorySize: 128

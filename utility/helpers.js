@@ -1,5 +1,5 @@
 exports.errRes = (err, statusCode = 400) => {
-  err = JSON.stringify(err);
+  err = JSON.stringify({ status: "Failed", err });
   let response = {
     isBase64Encoded: false,
     headers: {
@@ -12,7 +12,7 @@ exports.errRes = (err, statusCode = 400) => {
 };
 
 exports.okRes = (data, statusCode = 200) => {
-  data = JSON.stringify(data);
+  data = JSON.stringify({ status: "Success", data });
   let response = {
     isBase64Encoded: false,
     headers: {

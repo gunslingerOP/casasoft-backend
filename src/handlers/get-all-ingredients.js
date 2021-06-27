@@ -1,17 +1,15 @@
-// Create clients and set shared const values outside of the handler
-
-// Create a DocumentClient that represents the query to get all items
-const dynamodb = require("aws-sdk/clients/dynamodb");
-
-const jwt_decode = require("jwt-decode");
-
-const helpers = require("../../utility/helpers");
-const docClient = new dynamodb.DocumentClient({
+const { keyId, secret } = require("../../keys.env");
+const AWS = require("aws-sdk");
+AWS.config.update({
   region: "us-east-2",
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.KEY_SECRET,
-  convertEmptyValues: true,
 });
+
+const dynamodb = new AWS.DynamoDB.DocumentClient({
+  accessKeyId: keyId,
+  secretAccessKey: secret,
+});
+const jwt_decode = require("jwt-decode");
+const helpers = require("../../utility/helpers");
 
 // Get the DynamoDB table name from environment variables
 
@@ -19,7 +17,30 @@ const docClient = new dynamodb.DocumentClient({
  * A simple example includes a HTTP get method to get all items from a DynamoDB table.
  */
 exports.getAllIngredientsHandler = async (event) => {
-  const { body, httpMethod, headers, path } = event;
+  const { headers } = event;
+  if (!headers.Authorization) return helpers.errRes("Please provide a token!");
   const token = jwt_decode(headers.Authorization);
-  return helpers.okRes(token[`cognito:username`]);
+  var params = {
+    TableName: "Ingredients",
+    IndexName: "indexByUser",
+    ProjectionExpression: "Title, IngredientId, Image,UserName",
+
+    ExpressionAttributeValues: {
+      ":u": token.username,
+    },
+    KeyConditionExpression: "UserName = :u ",
+  };
+
+  let items = await dynamodb
+    .query(params, function (err, data) {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(data);
+        return data;
+      }
+    })
+    .promise();
+
+  return helpers.okRes(items);
 };

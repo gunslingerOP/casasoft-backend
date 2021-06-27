@@ -4,22 +4,13 @@
 # The AWSTemplateFormatVersion identifies the capabilities of the template
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/format-version-structure.html
 AWSTemplateFormatVersion: 2010-09-09
+
 Description: >-
   Website & Mobile starter project
 
 # Transform section specifies one or more macros that AWS CloudFormation uses to process your template
 # https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/transform-section-structure.html
 Transform: AWS::Serverless-2016-10-31
-
-# Shared configuration for all resources, more in
-# https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-# Globals:
-#   Function:
-#     # The PermissionsBoundary allows users to safely develop with their function's permissions constrained
-#     # to their current application. All the functions and roles in this application have to include it and
-#     # it has to be manually updated when you add resources to your application.
-#     # More information in https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html
-#     PermissionsBoundary: !Sub "arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/${AppId}-${AWS::Region}-PermissionsBoundary"
 
 Parameters:
   AppId:
@@ -43,83 +34,108 @@ Resources:
       Description: A simple example includes a HTTP get method to get all items from a DynamoDB table.
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref Users
+            TableName: !Ref User
 
         - DynamoDBCrudPolicy:
             TableName: !Ref Ingredients
       Environment:
         Variables:
-          USERS_TABLE: !Ref Users
-          INGREDIENTS_TABLE: !Ref Ingredients
+          ACCESS_KEY_ID: ${ACCESS_KEY_ID}
+          KEY_SECRET: ${KEY_SECRET}
       Events:
         Api:
           Type: Api
           Properties:
-            ApiKeyRequired: True
             Path: /
             Method: GET
+
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  # This is a Lambda function config associated with the source code: get-by-id.js
   getIngredientByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
-      Handler: src/handlers/get-by-id.getByIdHandler
+      Handler: src/handlers/modifyIngredient.modifyIngredientHandler
       Runtime: nodejs10.x
       MemorySize: 128
       Timeout: 60
       Description: A function that gets an ingredient by its ID
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref Users
+            TableName: !Ref User
 
         - DynamoDBCrudPolicy:
             TableName: !Ref Ingredients
       Environment:
         Variables:
-          USERS_TABLE: !Ref Users
+          USERS_TABLE: !Ref User
           INGREDIENTS_TABLE: !Ref Ingredients
       Events:
         Api:
           Type: Api
           Properties:
-            ApiKeyRequired: True
             Path: /ingredient/{id}
-            Method: GET
+            Method: PUT
+
+  createItemHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/create-ingredient.createItemHandler
+      Runtime: nodejs10.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A function that gets an ingredient by its ID
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref User
+
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Ingredients
+      Environment:
+        Variables:
+          USERS_TABLE: !Ref User
+          INGREDIENTS_TABLE: !Ref Ingredients
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /ingredient
+            Method: POST
+
   # # Each Lambda function is defined by properties:
   # # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
   # # This is a Lambda function config associated with the source code: put-item.js
-  # putItemFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     CodeUri: ./
-  #     Handler: src/handlers/put-item.putItemHandler
-  #     Runtime: nodejs10.x
-  #     MemorySize: 128
-  #     Timeout: 60
-  #     Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
-  #     Policies:
-  #       # Give Create/Read/Update/Delete Permissions to the SampleTable
-  #       - DynamoDBCrudPolicy:
-  #           TableName: !Ref SampleTable
-  #     Environment:
-  #       Variables:
-  #         # Make table name accessible as environment variable from function code during execution
-  #         SAMPLE_TABLE: !Ref SampleTable
-  #     Events:
-  #       Api:
-  #         Type: Api
-  #         Properties:
-  #           Path: /
-  #           Method: POST
+  deleteItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/delete-item.deleteItemHandler
+      Runtime: nodejs10.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref User
+
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Ingredients
+
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /ingredient/{id}
+            Method: DELETE
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
 
   # DynamoDB table to store item: {id: <ID>, name: <NAME>}
-  Users:
+  User:
     Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
@@ -133,26 +149,25 @@ Resources:
           KeyType: HASH
         - AttributeName: UserEmail
           KeyType: RANGE
-      TableName: Users
+      TableName: User
       ProvisionedThroughput:
         ReadCapacityUnits: "5"
         WriteCapacityUnits: "5"
 
   Ingredients:
     Type: AWS::DynamoDB::Table
-    DependsOn: Users
+    DependsOn: User
     Properties:
       AttributeDefinitions:
         - AttributeName: IngredientId
           AttributeType: S
-        - AttributeName: Image
-          AttributeType: S
+
         - AttributeName: UserName
           AttributeType: S
       KeySchema:
         - AttributeName: IngredientId
           KeyType: HASH
-        - AttributeName: Image
+        - AttributeName: UserName
           KeyType: RANGE
       TableName: Ingredients
       ProvisionedThroughput:
@@ -164,7 +179,7 @@ Resources:
             - AttributeName: UserName
               KeyType: HASH
           Projection:
-            ProjectionType: KEYS_ONLY
+            ProjectionType: ALL
           ProvisionedThroughput:
             ReadCapacityUnits: "5"
             WriteCapacityUnits: "5"

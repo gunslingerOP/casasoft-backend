@@ -12,7 +12,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 const jwt_decode = require("jwt-decode");
 const helpers = require("../../utility/helpers");
 
-exports.modifyIngredientHandler = async (event) => {
+exports.getIngredientHandler = async (event) => {
   let { headers, pathParameters, body } = event;
   body = JSON.parse(body);
   if (!headers.Authorization) return helpers.errRes("Please provide a token!");

@@ -52,7 +52,7 @@ Resources:
   # Each Lambda function is defined by properties:
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
 
-  getIngredientByIdFunction:
+  modifyIngredientByIdFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./
@@ -78,6 +78,31 @@ Resources:
             Path: /ingredient/{id}
             Method: PUT
 
+  getIngredientByIdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/get-by-id.getIngredientHandler
+      Runtime: nodejs10.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A function that gets an ingredient by its ID
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref User
+
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Ingredients
+      Environment:
+        Variables:
+          USERS_TABLE: !Ref User
+          INGREDIENTS_TABLE: !Ref Ingredients
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /ingredient/{id}
+            Method: GET
   createItemHandler:
     Type: AWS::Serverless::Function
     Properties:

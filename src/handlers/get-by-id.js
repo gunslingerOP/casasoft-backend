@@ -12,7 +12,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
 const jwt_decode = require("jwt-decode");
 const helpers = require("../../utility/helpers");
 
-exports.deleteItemHandler = async (event) => {
+exports.modifyIngredientHandler = async (event) => {
   let { headers, pathParameters, body } = event;
   body = JSON.parse(body);
   if (!headers.Authorization) return helpers.errRes("Please provide a token!");
@@ -39,29 +39,6 @@ exports.deleteItemHandler = async (event) => {
       }
     })
     .promise();
-  if (Item.Items.length == 0) return helpers.errRes("No such ingredient found");
 
-  const deleteParams = {
-    TableName: "Ingredients",
-    Key: {
-      IngredientId: id,
-      UserName: token["cognito:username"],
-    },
-  };
-
-  let deletedItem = await dynamodb
-    .delete(deleteParams, function (err, data) {
-      if (err) {
-        console.error(
-          "Unable to delete item. Error JSON:",
-          JSON.stringify(err, null, 2)
-        );
-      } else {
-        console.log("DeleteItem succeeded:", JSON.stringify(data, null, 2));
-        return data;
-      }
-    })
-    .promise();
-
-  return helpers.okRes(deletedItem);
+  return helpers.okRes(Item);
 };

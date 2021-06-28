@@ -26,7 +26,7 @@ exports.getAllIngredientsHandler = async (event) => {
     ProjectionExpression: "Title, IngredientId, Image,UserName",
 
     ExpressionAttributeValues: {
-      ":u": token.username,
+      ":u": token["cognito:username"],
     },
     KeyConditionExpression: "UserName = :u ",
   };

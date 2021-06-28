@@ -27,7 +27,7 @@ exports.modifyIngredientHandler = async (event) => {
   var params = {
     TableName: "Ingredients",
     ExpressionAttributeValues: {
-      ":u": token.username,
+      ":u": token["cognito:username"],
       ":i": id,
     },
     KeyConditionExpression: "UserName = :u and IngredientId = :i ",
@@ -45,7 +45,7 @@ exports.modifyIngredientHandler = async (event) => {
     TableName: "Ingredients",
     Key: {
       IngredientId: Item.Items[0].IngredientId,
-      UserName: token.username,
+      UserName: token["cognito:username"],
     },
     UpdateExpression: "set Title = :r, Image=:i",
     ExpressionAttributeValues: {

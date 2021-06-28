@@ -30,7 +30,7 @@ exports.createItemHandler = async (event) => {
       IngredientId: uniqueId,
       Title: body.title,
       Image: body.image,
-      UserName: token.username,
+      UserName: token["cognito:username"],
     },
   };
 

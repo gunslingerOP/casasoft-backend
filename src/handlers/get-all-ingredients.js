@@ -20,6 +20,9 @@ exports.getAllIngredientsHandler = async (event) => {
   const { headers } = event;
   if (!headers.Authorization) return helpers.errRes("Please provide a token!");
   const token = jwt_decode(headers.Authorization);
+  if (!token["cognito:username"])
+    return helpers.errRes("Please provide an id token!");
+
   var params = {
     TableName: "Ingredients",
     IndexName: "indexByUser",

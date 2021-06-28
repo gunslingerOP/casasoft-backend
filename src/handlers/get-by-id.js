@@ -17,6 +17,9 @@ exports.getIngredientHandler = async (event) => {
   body = JSON.parse(body);
   if (!headers.Authorization) return helpers.errRes("Please provide a token!");
   const token = jwt_decode(headers.Authorization);
+  if (!token["cognito:username"])
+    return helpers.errRes("Please provide an id token!");
+
   if (!body.title || !body.image)
     return helpers.errRes("Add a new title and image or keep the old ones");
 

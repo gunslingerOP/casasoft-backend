@@ -15,6 +15,8 @@ const helpers = require("../../utility/helpers");
 
 exports.createItemHandler = async (event) => {
   const token = jwt_decode(headers.Authorization);
+  if (!token["cognito:username"])
+    return helpers.errRes("Please provide an id token!");
 
   let uniqueId = randomstring.generate();
 

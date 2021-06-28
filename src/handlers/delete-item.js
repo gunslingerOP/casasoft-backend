@@ -19,7 +19,8 @@ exports.deleteItemHandler = async (event) => {
   const token = jwt_decode(headers.Authorization);
   if (!body.title || !body.image)
     return helpers.errRes("Add a new title and image or keep the old ones");
-
+  if (!token["cognito:username"])
+    return helpers.errRes("Please provide an id token!");
   // Get id from pathParameters from APIGateway because of `/{id}` at template.yml
   const { id } = pathParameters;
 

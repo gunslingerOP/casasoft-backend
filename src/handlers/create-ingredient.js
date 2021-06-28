@@ -1,4 +1,3 @@
-const { keyId, secret } = require("../../keys.env");
 var randomstring = require("randomstring");
 
 const AWS = require("aws-sdk");
@@ -7,8 +6,8 @@ AWS.config.update({
 });
 
 const dynamodb = new AWS.DynamoDB.DocumentClient({
-  accessKeyId: keyId,
-  secretAccessKey: secret,
+  accessKeyId: process.env.keyId,
+  secretAccessKey: process.env.secret,
 });
 const jwt_decode = require("jwt-decode");
 const helpers = require("../../utility/helpers");

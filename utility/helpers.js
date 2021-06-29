@@ -4,6 +4,9 @@ exports.errRes = (err, statusCode = 400) => {
     isBase64Encoded: false,
     headers: {
       "Content-Type": "application/json",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET, PUT",
     },
     body: err,
     statusCode,
@@ -17,6 +20,9 @@ exports.okRes = (data, statusCode = 200) => {
     isBase64Encoded: false,
     headers: {
       "Content-Type": "application/json",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "OPTIONS,POST,GET, PUT",
     },
     body: data,
     statusCode,

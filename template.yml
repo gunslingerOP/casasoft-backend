@@ -158,6 +158,29 @@ Resources:
             Method: DELETE
   # Simple syntax to create a DynamoDB table with a single attribute primary key, more in
   # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
+  uploadUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handlers/url.uploadUrlHandler
+      Runtime: nodejs10.x
+      MemorySize: 128
+      Timeout: 60
+      Description: A simple example includes a HTTP post method to add one item to a DynamoDB table.
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref User
+
+        - DynamoDBCrudPolicy:
+            TableName: !Ref Ingredients
+
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /url
+            Method: GET
 
   # DynamoDB table to store item: {id: <ID>, name: <NAME>}
   User:

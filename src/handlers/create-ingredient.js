@@ -14,14 +14,14 @@ const jwt_decode = require("jwt-decode");
 const helpers = require("../../utility/helpers");
 
 exports.createItemHandler = async (event) => {
+  let { body, headers } = event;
+
+  body = JSON.parse(body);
   const token = jwt_decode(headers.Authorization);
   if (!token["cognito:username"])
     return helpers.errRes("Please provide an id token!");
 
   let uniqueId = randomstring.generate();
-
-  let { body, headers } = event;
-  body = JSON.parse(body);
 
   if (!body.title || !body.image)
     return helpers.errRes("Please provide a title and image ");
